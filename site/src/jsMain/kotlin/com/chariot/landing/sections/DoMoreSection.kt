@@ -1,21 +1,34 @@
 package com.chariot.landing.sections
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.chariot.landing.components.RenderMarkdown
+import com.chariot.landing.components.StoreButton
 import com.chariot.landing.models.DoMore
+import com.chariot.landing.models.Section
 import com.chariot.landing.models.ThemeByKizito
 import com.chariot.landing.util.ConstantsObject
+import com.chariot.landing.util.MyLinksObject
+import com.chariot.landing.util.ResObject
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.ObjectFit
 import com.varabyte.kobweb.compose.css.TextDecorationLine
 import com.varabyte.kobweb.compose.css.Transition
 import com.varabyte.kobweb.compose.css.UserSelect
+import com.varabyte.kobweb.compose.css.Width
+import com.varabyte.kobweb.compose.css.dvw
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
+import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
+import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.modifiers.alignContent
+import com.varabyte.kobweb.compose.ui.modifiers.alignItems
 import com.varabyte.kobweb.compose.ui.modifiers.background
 import com.varabyte.kobweb.compose.ui.modifiers.border
 import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
@@ -26,8 +39,10 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.gap
+import com.varabyte.kobweb.compose.ui.modifiers.id
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.objectFit
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.onContextMenu
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.scale
@@ -35,6 +50,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.size
 import com.varabyte.kobweb.compose.ui.modifiers.textDecorationLine
 import com.varabyte.kobweb.compose.ui.modifiers.transition
 import com.varabyte.kobweb.compose.ui.modifiers.userSelect
+import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.compose.ui.modifiers.zIndex
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.toAttrs
@@ -50,10 +66,13 @@ import com.varabyte.kobweb.silk.style.selectors.active
 import com.varabyte.kobweb.silk.style.selectors.hover
 import com.varabyte.kobweb.silk.style.toModifier
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
+import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.CSSColorValue
 import org.jetbrains.compose.web.css.Color
+import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.ms
 import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
@@ -78,6 +97,10 @@ fun DoMoreSectionSection(
     val mainHeaderText = remember { DoMore.mainHeaderText }
     val vendorContent = remember { DoMore.Vendor }
     val riderContent = remember { DoMore.Rider }
+
+    var showVendorStores by remember { mutableStateOf(false) }
+    var showRiderStores by remember { mutableStateOf(false) }
+
 
     val subTitleFontSize = remember {
         if (breakpoint <= Breakpoint.ZERO) {
@@ -202,8 +225,8 @@ fun DoMoreSectionSection(
         SimpleGrid(
             numColumns = numColumns(base = 1, sm = 1, md = 2),
             Modifier.fillMaxWidth()
+                .alignItems(AlignItems.Start)
                 //.display(DisplayStyle.Grid)
-
                 .gap(
                     rowGap = if (breakpoint <= Breakpoint.ZERO) {
                         20.px
@@ -247,6 +270,7 @@ fun DoMoreSectionSection(
 
             Column(
                 modifier = Modifier
+                    .id(Section.Vendors.id)
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.Start
@@ -323,6 +347,7 @@ fun DoMoreSectionSection(
                         .toAttrs()
                 )
 
+                /*
                 CustomButton(
                     breakpoint = breakpoint,
                     buttonText = vendorContent.buttonText,
@@ -333,12 +358,95 @@ fun DoMoreSectionSection(
                     storeLink = ""
                 )
 
+                 */
+
+                if (!showVendorStores) {
+
+                    CustomButton(
+                        breakpoint = breakpoint,
+                        buttonText = vendorContent.buttonText,
+                        textColor = ThemeByKizito.Button_Blue_Color.rgb,
+                        backgroundColor = ThemeByKizito.Button_Blue_ALPHA1.rgb,
+                        storeLink = "",
+                        onClick = {
+                            showVendorStores = !showVendorStores
+                        }
+                    )
+                }
+
+                if (showVendorStores) {
+
+                    Div(
+                        attrs = Modifier
+                            .styleModifier { property(propertyName = "height", value = 20.px) }
+                            .toAttrs()
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                leftRight = if (breakpoint <= Breakpoint.ZERO) {
+                                    10.px
+                                } else {
+                                    if (breakpoint <= Breakpoint.SM) {
+                                        20.px
+                                    } else {
+                                        if (breakpoint <= Breakpoint.MD) {
+                                            0.px
+                                        } else {
+                                            if (breakpoint <= Breakpoint.LG) {
+                                                10.px
+                                            } else {
+                                                14.px
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        ,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                            StoreButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                breakpoint = breakpoint,
+                                buttonText = "Download on Google Play",
+                                buttonIcon = ResObject.Icon.playStore,
+                                storeLink = MyLinksObject.vendorsAppLinkPlayStore,
+                            )
+
+                        Div(attrs = {
+                            style {
+                                height(
+                                    if (breakpoint <= Breakpoint.MD) {
+                                        12.px
+                                    } else {
+                                        20.px
+                                    }
+                                )
+                            }
+                        })
+
+                            StoreButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                breakpoint = breakpoint,
+                                buttonText = "Download on App Store",
+                                buttonIcon = ResObject.Icon.appStore,
+                                storeLink = MyLinksObject.vendorsAppLinkIosStore,
+                            )
+
+                    }
+
+                }
+
 
             }
 
 
             Column(
                 modifier = Modifier
+                    .id(Section.Riders.id)
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.Start
@@ -430,6 +538,7 @@ fun DoMoreSectionSection(
                 )
 
 
+                /*
                 CustomButton(
                     breakpoint = breakpoint,
                     buttonText = riderContent.buttonText,
@@ -437,8 +546,91 @@ fun DoMoreSectionSection(
                     // fontWeightValue = FontWeight.Medium,
                     textColor = ThemeByKizito.ORANGE_COLOR.rgb,
                     backgroundColor = ThemeByKizito.ORANGE_ALPHA.rgb,
-                    storeLink = ""
+                    st
+                    oreLink = ""
+
                 )
+
+                 */
+
+
+                if (!showRiderStores) {
+                    CustomButton(
+                        breakpoint = breakpoint,
+                        buttonText = riderContent.buttonText,
+                        textColor = ThemeByKizito.ORANGE_COLOR.rgb,
+                        backgroundColor = ThemeByKizito.ORANGE_ALPHA.rgb,
+                        storeLink = "",
+                        onClick = {
+                            showRiderStores = !showRiderStores
+                        }
+                    )
+                }
+
+                if (showRiderStores) {
+                    Div(
+                        attrs = Modifier
+                            .styleModifier { property(propertyName = "height", value = 20.px) }
+                            .toAttrs()
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                leftRight = if (breakpoint <= Breakpoint.ZERO) {
+                                    10.px
+                                } else {
+                                    if (breakpoint <= Breakpoint.SM) {
+                                        20.px
+                                    } else {
+                                        if (breakpoint <= Breakpoint.MD) {
+                                            0.px
+                                        } else {
+                                            if (breakpoint <= Breakpoint.LG) {
+                                                10.px
+                                            } else {
+                                                14.px
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        ,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                            StoreButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                breakpoint = breakpoint,
+                                buttonText = "Download on Google Play",
+                                buttonIcon = ResObject.Icon.playStore,
+                                storeLink = MyLinksObject.ridersAppLinkPlayStore,
+                            )
+
+
+                        Div(attrs = {
+                            style {
+                                height(
+                                    if (breakpoint <= Breakpoint.MD) {
+                                        12.px
+                                    } else {
+                                        20.px
+                                    }
+                                )
+                            }
+                        })
+
+                            StoreButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                breakpoint = breakpoint,
+                                buttonText = "Download on App Store",
+                                buttonIcon = ResObject.Icon.appStore,
+                                storeLink = MyLinksObject.ridersAppLinkIosStore,
+                            )
+
+                    }
+                }
 
 
             }
@@ -494,7 +686,9 @@ private fun CustomButton(
     textColor: CSSColorValue,
     backgroundColor:  CSSColorValue,
     storeLink: String,
-    ){
+    onClick: (() -> Unit) ? = null
+
+){
 
 
     Link(
@@ -505,6 +699,9 @@ private fun CustomButton(
             .onContextMenu { event ->
                 event.preventDefault()
                 event.stopPropagation()
+            }
+            .onClick {
+                onClick?.invoke()
             },
         path = storeLink,
         openExternalLinksStrategy = OpenLinkStrategy.IN_NEW_TAB

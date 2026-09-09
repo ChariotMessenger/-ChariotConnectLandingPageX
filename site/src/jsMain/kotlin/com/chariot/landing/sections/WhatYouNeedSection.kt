@@ -1,6 +1,8 @@
 package com.chariot.landing.sections
 
 import androidx.compose.runtime.*
+import com.chariot.landing.components.StoreButton
+import com.chariot.landing.models.Section
 import com.chariot.landing.models.ThemeByKizito
 import com.chariot.landing.models.WhatYouNeed
 import com.chariot.landing.styles.VisitStoreStyle
@@ -92,6 +94,7 @@ fun WhatYouNeedSection(
 
     Column(
         modifier = Modifier
+            .id(Section.Home.id)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     )
@@ -694,164 +697,6 @@ private fun CustomImage(
             description = "image",
         )
     }
-}
-
-
-
-
-@Composable
-private fun StoreButton(
-    modifier: Modifier = Modifier,
-    breakpoint: Breakpoint,
-    buttonText: String,
-    buttonIcon: String,
-    storeLink: String,
-
-){
-
-//    Box(modifier = modifier
-//        .fillMaxWidth()
-//    ) {
-
-        Link(
-            modifier = modifier
-                .then(      if (breakpoint <= Breakpoint.SM) {
-                    Modifier.fillMaxWidth(if (breakpoint <= Breakpoint.ZERO) 100.percent else 90.percent)
-                } else {
-                    Modifier
-                }
-                )
-                .textDecorationLine(TextDecorationLine.None)
-                // Disable right-click / long-press
-                .onContextMenu { event ->
-                    event.preventDefault()
-                    event.stopPropagation()
-                },
-            path = storeLink,
-            openExternalLinksStrategy = OpenLinkStrategy.IN_NEW_TAB
-        )
-        {
-
-
-            Button(
-                attrs = VisitStoreStyle.toModifier()
-                    .border(width = 0.px)
-                    .borderRadius(r = 8.px)
-                    .color(Color.white)
-                    .fontFamily(ConstantsObject.FONT_FAMILY, ConstantsObject.FALL_BACK_FONT)
-                    .fontWeight(FontWeight.SemiBold)
-                    .fontSize(
-                        if (breakpoint <= Breakpoint.ZERO) {
-                            14.px
-                        } else {
-                            if (breakpoint <= Breakpoint.SM) {
-                                14.px
-                            } else {
-                                if (breakpoint <= Breakpoint.MD) {
-                                    14.px
-                                } else {
-                                    if (breakpoint <= Breakpoint.LG) {
-                                        16.px
-                                    } else {
-                                        18.px
-                                    }
-                                }
-                            }
-                        }
-
-                    )
-                    .fontWeight(400)
-                    .alignContent(AlignContent.Center)
-                    .cursor(Cursor.Pointer)
-                    .userSelect(UserSelect.None)
-                    .padding(
-                        leftRight = if (breakpoint <= Breakpoint.ZERO) {
-                            40.px
-                        } else {
-                            if (breakpoint <= Breakpoint.SM) {
-                                40.px
-                            } else {
-                                if (breakpoint <= Breakpoint.MD) {
-                                    26.px
-                                } else 30.px
-                            }
-                        },
-                        topBottom = if (breakpoint <= Breakpoint.ZERO) {
-                            12.px
-                        } else {
-                            if (breakpoint <= Breakpoint.SM) {
-                                14.px
-                            } else {
-                                if (breakpoint <= Breakpoint.MD) {
-                                    16.px
-                                } else 18.px
-                            }
-                        }
-                    )
-                    // Disable right-click / long-press
-                    .onContextMenu { event ->
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-                    .toAttrs()
-            )
-            {
-
-                Row(
-                    modifier = Modifier,
-                    verticalAlignment = Alignment.CenterVertically,
-                    //horizontalArrangement = Arrangement.spacedBy(8.px) ,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-
-                    Image(
-                        modifier = Modifier
-                            .size(
-                                size = if (breakpoint <= Breakpoint.ZERO) {
-                                    20.px
-                                } else {
-                                    if (breakpoint <= Breakpoint.SM) {
-                                        20.px
-                                    } else {
-                                        if (breakpoint <= Breakpoint.MD) {
-                                            20.px
-                                        } else {
-
-                                            22.px
-                                        }
-                                    }
-                                }
-                            )
-                            // Disable right-click / long-press
-                            .onContextMenu { event ->
-                                event.preventDefault()
-                                event.stopPropagation()
-                            },
-                        src = buttonIcon,
-                        description = "store icon",
-                    )
-
-                    Div(attrs = {
-                        style {
-                            width(8.px)
-                        }
-                    }
-                    )
-
-                    Text(value = buttonText)
-
-
-                }
-
-            }
-
-        }
-
-
-    //}
-
-
-
 }
 
 

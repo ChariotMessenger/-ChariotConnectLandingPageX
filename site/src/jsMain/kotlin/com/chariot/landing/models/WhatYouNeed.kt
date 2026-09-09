@@ -37,8 +37,8 @@ enum class WhatYouNeed(
                 imgPair = Pair(ResObject.Image.pharmacyImge2, ResObject.Image.packageImge2),
             ),
         ),
-        playStoreLink = MyLinksObject.playStoreLink,
-        appStoreLink = MyLinksObject.appStoreLink,
+        playStoreLink = MyLinksObject.customersAppLinkPlayStore,
+        appStoreLink = MyLinksObject.customersAppLinkIosStore,
     ),
 
 }

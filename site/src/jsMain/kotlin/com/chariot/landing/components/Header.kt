@@ -3,6 +3,7 @@ package com.chariot.landing.components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.chariot.landing.models.Section
 import com.chariot.landing.models.ThemeByKizito
 import com.chariot.landing.styles.LogoStyle
 import com.chariot.landing.util.ConstantsObject
@@ -21,6 +22,7 @@ import com.varabyte.kobweb.compose.ui.thenIf
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.framework.annotations.DelicateApi
 import com.varabyte.kobweb.silk.components.graphics.Image
+import com.varabyte.kobweb.silk.components.navigation.Link
 import com.varabyte.kobweb.silk.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.style.toModifier
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
@@ -223,9 +225,22 @@ fun RightSide(breakpoint: Breakpoint){
                     }
                 }
 
+                val linkPath = if (index == 0) {
+                    Section.Vendors.path
+                } else {
+                    if (index == 1) {
+                        Section.Riders.path
+                    } else {
+                        Section.Footer.path
+                    }
+                }
+
+
+
 
                 A(
-                    href = "/$pageName/",
+                    //href = "/$pageName/",
+                    href = linkPath,
                     attrs = Modifier
                         .textDecorationLine(TextDecorationLine.None)
                         .padding(topBottom = 8.px, leftRight = 10.px)

@@ -36,22 +36,28 @@ enum class Section(
     Home(
         id = "homeId",
         title = "Home",
-        path = "#home"
+        path = "#homeId"
     ),
     Vendors(
         id = "vendorsId",
         title = "Vendors",
-        path = "#about"
+        path = "#vendorsId"
     ),
     Riders(
         id = "ridersId",
         title = "Riders",
-        path = "#service"
+        path = "#ridersId"
     ),
 
     Contact(
-        id = "contact",
+        id = "contactId",
         title = "Contact us",
-        path = "#contact"
+        path = "#contactId"
+    ),
+
+    Footer(
+    id = "footerId",
+    title = "Footer",
+    path = "#footerId"
     )
 }

@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.chariot.landing.api.NewsletterResult
+import com.chariot.landing.api.subscribeToNewsletter
 import com.chariot.landing.components.RenderMarkdown
 import com.chariot.landing.models.FollowUs
 import com.chariot.landing.models.FollowUs.*
@@ -40,8 +43,11 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontFamily
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.gap
+import com.varabyte.kobweb.compose.ui.modifiers.id
+import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.maxWidth
 import com.varabyte.kobweb.compose.ui.modifiers.objectFit
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.onContextMenu
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.size
@@ -70,6 +76,7 @@ import com.varabyte.kobweb.silk.style.breakpoint.Breakpoint
 import com.varabyte.kobweb.silk.style.common.PlaceholderColor
 import com.varabyte.kobweb.silk.style.toModifier
 import com.varabyte.kobweb.silk.theme.breakpoint.rememberBreakpoint
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.attributes.AutoComplete
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.ms
@@ -77,6 +84,7 @@ import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 
 
@@ -88,6 +96,7 @@ fun FooterSection(){
 
     Box(
         modifier = Modifier
+            .id(Section.Footer.id)
             .fillMaxWidth()
             .padding(topBottom = if (breakpoint <= Breakpoint.ZERO) 40.px else
                 if (breakpoint <= Breakpoint.SM) 60.px else
@@ -126,7 +135,12 @@ private fun BottonPart(
 ) {
 
 
+
     var emailText by remember { mutableStateOf("") }
+    var isSubmitting by remember { mutableStateOf(false) } // new
+    var statusMessage by remember { mutableStateOf<String?>(null) } // new
+    var statusIsError by remember { mutableStateOf(false) } // new
+    val coroutineScope = rememberCoroutineScope() // new
 
 
     Column(
@@ -469,6 +483,7 @@ private fun BottonPart(
                         autoComplete = AutoComplete.email
                     )
 
+                    /*
                     Button(
                         attrs = EmailButtonStyle.toModifier()
                             .styleModifier {
@@ -519,6 +534,112 @@ private fun BottonPart(
                             .toAttrs()
                     ) {
                         Text(value = "Get updates")
+                    }
+
+                    */
+
+
+                    Button(
+                        attrs = EmailButtonStyle.toModifier()
+                            .styleModifier {
+                                property("flex", "0 0 auto")
+                                property("display", "flex")
+                                property("align-items", "center")
+                                property("justify-content", "center")
+                                property("white-space", "nowrap")
+                                property("border", "0.5px solid ${ThemeByKizito.Faq_Color_Stroke.rgb}")
+                                property("border-left", "none")
+                                property("box-sizing", "border-box")
+                            }
+                            .borderRadius(
+                                topRight = 8.px,
+                                bottomRight = 8.px,
+                                topLeft = 0.px,
+                                bottomLeft = 0.px
+                            )
+                            .fontFamily(ConstantsObject.FONT_FAMILY, ConstantsObject.FALL_BACK_FONT)
+                            .fontSize(
+                                when {
+                                    breakpoint <= Breakpoint.ZERO -> 10.px
+                                    breakpoint <= Breakpoint.SM -> 14.px
+                                    breakpoint <= Breakpoint.MD -> 12.px
+                                    breakpoint <= Breakpoint.LG -> 16.px
+                                    else -> 18.px
+                                }
+                            )
+                            .color(Color.white)
+                            .cursor(Cursor.Pointer)
+                            .userSelect(UserSelect.None)
+                            .padding(
+                                topBottom = when {
+                                    breakpoint <= Breakpoint.ZERO -> 9.px
+                                    breakpoint <= Breakpoint.SM -> 10.px
+                                    else -> 12.px
+                                },
+                                leftRight = when {
+                                    breakpoint <= Breakpoint.ZERO -> 10.px
+                                    breakpoint <= Breakpoint.SM -> 12.px
+                                    else -> 16.px
+                                }
+                            )
+                            .onContextMenu { event ->
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            .onClick {
+                               // println("Get updates clicked. emailText='$emailText', isSubmitting=$isSubmitting")
+
+                                if (emailText.isBlank() || isSubmitting) {
+                                  //  println("Click ignored: blank email or already submitting")
+                                    return@onClick
+                                }
+
+                                isSubmitting = true
+                                statusMessage = null
+                               // println("Starting subscription request for email='$emailText'")
+
+                                coroutineScope.launch {
+                                    when (val result = subscribeToNewsletter(emailText.trim())) {
+                                        is NewsletterResult.Success -> {
+                                            //println("Subscription SUCCESS for email='$emailText'")
+                                            statusIsError = false
+                                            statusMessage = "You're subscribed! 🎉"
+                                            emailText = ""
+                                        }
+                                        is NewsletterResult.Error -> {
+                                           // println("Subscription ERROR: ${result.message}")
+                                            statusIsError = true
+                                            statusMessage = result.message
+                                        }
+                                    }
+                                    isSubmitting = false
+                                    //println("isSubmitting reset to false")
+                                }
+                            }
+                            .toAttrs()
+                    ) {
+                        Text(value = if (isSubmitting) "Sending..." else "Get updates")
+                    }
+
+                }
+
+
+
+                statusMessage?.let { msg ->
+                    Div(
+                        attrs = Modifier
+                            .styleModifier { property("height", "10px") }
+                            .toAttrs()
+                    )
+                    P(
+                        attrs = Modifier
+                            .margin(all = 0.px)
+                            .color(if (statusIsError) Color.red else Color.limegreen) // tune to your theme colors
+                            .fontFamily(ConstantsObject.FONT_FAMILY, ConstantsObject.FALL_BACK_FONT)
+                            .fontSize(12.px)
+                            .toAttrs()
+                    ) {
+                        Text(value = msg)
                     }
                 }
 
@@ -579,63 +700,72 @@ private fun BottonPart(
                     Section.entries.forEach { section ->
 
 
+                        if (section != Section.Footer) {
 
-                        A(href = "/${section.path}",
-                            attrs = NavigationItemStyle.toModifier()
-                                .cursor(Cursor.Pointer)
-                                .fontFamily(ConstantsObject.FONT_FAMILY, ConstantsObject.FALL_BACK_FONT)
-                                .fontSize(
-                                    if (breakpoint <= Breakpoint.ZERO) {
-                                        12.px
-                                    } else {
-                                        if (breakpoint <= Breakpoint.SM) {
+                            A(
+                               // href = "/${section.path}",
+                                href = if (section == Section.Contact) {
+                                    "https://mail.google.com/mail/u/0/?view=cm&fs=1&to=Hello.umali.app@gmail.com"
+                                } else {
+                                    section.path
+                                },
+                                attrs = NavigationItemStyle.toModifier()
+                                    .cursor(Cursor.Pointer)
+                                    .fontFamily(ConstantsObject.FONT_FAMILY, ConstantsObject.FALL_BACK_FONT)
+                                    .fontSize(
+                                        if (breakpoint <= Breakpoint.ZERO) {
                                             12.px
                                         } else {
-                                            if (breakpoint <= Breakpoint.MD) {
+                                            if (breakpoint <= Breakpoint.SM) {
                                                 12.px
                                             } else {
-                                                if (breakpoint <= Breakpoint.LG) {
-                                                    14.px
+                                                if (breakpoint <= Breakpoint.MD) {
+                                                    12.px
                                                 } else {
-                                                    16.px
+                                                    if (breakpoint <= Breakpoint.LG) {
+                                                        14.px
+                                                    } else {
+                                                        16.px
+                                                    }
                                                 }
                                             }
                                         }
+                                    )
+                                    .fontWeight(FontWeight.Medium)
+                                    .padding(leftRight = 3.px, topBottom = 1.px)
+                                    .textDecorationLine(TextDecorationLine.None)
+                                    .userSelect(UserSelect.None)
+                                    .toAttrs {
+                                        /*
+                                        onClick {
+                                            it.preventDefault()
+                                            it.stopPropagation()
+
+                                            //navigateScrollToSection(section.id)
+                                        }
+
+                                         */
+
                                     }
-                                )
-                                .fontWeight(FontWeight.Medium)
-                                .padding(leftRight = 3.px , topBottom = 1.px)
-                                .textDecorationLine(TextDecorationLine.None)
-                                .userSelect(UserSelect.None)
-                                .toAttrs{
-                                    onClick {
-                                        it.preventDefault()
-                                        it.stopPropagation()
+                            ) {
 
-                                        //navigateScrollToSection(section.id)
+                                Text(value = section.title)
+
+                            }
 
 
+                            Div(
+                                attrs = Modifier
+                                    .styleModifier {
+                                        property(
+                                            propertyName = "height",
+                                            value = 8.px
+                                        )
                                     }
-
-                                }
-                        ) {
-
-                            Text(value = section.title)
+                                    .toAttrs()
+                            )
 
                         }
-
-
-                        Div(
-                            attrs = Modifier
-                                .styleModifier {
-                                    property(
-                                        propertyName = "height",
-                                        value = 8.px
-                                    )
-                                }
-                                .toAttrs()
-                        )
-
 
 
                     }
