@@ -71,6 +71,8 @@ object ResObject {
         const val happy_bottom6_img = "/happy_bottom1_img.png"
 
 
+        //
+
     }
 
 
